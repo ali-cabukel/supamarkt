@@ -1,39 +1,64 @@
 # backend
 
-Python package for supamarkt — async persistence, JWT auth, and FastAPI.
+Python package for supamarkt — global intraday market data (US, UK, EU), rule-based signals, and FastAPI.
+
+**Not investment advice.** Free-tier data may be delayed or incomplete.
 
 ## Setup
 
 ```bash
 cd backend
-cp .env.template .env
+cp .env.template .env   # set FINNHUB_API_KEY
 uv sync
 uv run supamarkt init-db
 ```
 
-Configuration: `src/supamarkt/settings.py` (pydantic-settings).
+Register a free key at [Finnhub](https://finnhub.io/register).
 
-## CLI (`supamarkt`)
+## CLI
 
 ```bash
-uv run supamarkt init-db
-uv run supamarkt-api
+# Default watchlist: AAPL, MSFT (US), VOD, BP (UK), SAP, ASML (EU)
+uv run supamarkt collect-intraday
+uv run supamarkt collect-intraday --watchlist default
+
+# Single symbol
+uv run supamarkt collect-intraday --symbol AAPL --mic XNAS
+
+# Signals from stored 5m bars
+uv run supamarkt analyze --watchlist default --strategy ema_trend_5m
+uv run supamarkt list-strategies
 ```
 
 ## API (`supamarkt-api`)
 
-REST API on `http://127.0.0.1:8000` (see `/docs` for OpenAPI).
+```bash
+uv run supamarkt-api
+# http://127.0.0.1:8000/docs
+```
 
-| Prefix | Description |
-|--------|-------------|
-| `/auth` | Register (`POST /auth/register`) |
-| `/auth/jwt` | Login (`POST /auth/jwt/login`) |
-| `/users` | Current user profile |
-| `/health` | Health check |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/instruments` | List/search instruments (`?region=US`) |
+| GET | `/instruments/{id}/bars` | 5m OHLCV history |
+| GET | `/signals` | Latest signals (`?watchlist=default&strategy=ema_trend_5m`) |
 
-## Database
+All market routes require JWT (`/auth/register`, `/auth/jwt/login`).
 
-SQLite at `backend/data/supamarkt.db` (override with `DB_PATH` in `.env`).
+## Default watchlist
+
+| Symbol | MIC | Region |
+|--------|-----|--------|
+| AAPL | XNAS | US |
+| MSFT | XNAS | US |
+| VOD | XLON | UK |
+| BP | XLON | UK |
+| SAP | XETR | EU |
+| ASML | XAMS | EU |
+
+**yfinance** is the default for 5m OHLCV (free). Finnhub `/stock/candle` requires a
+[paid market-data plan](https://finnhub.io/pricing-stock-api-market-data) — free keys
+get 403. Set `DATA_PROVIDER_PRIMARY=finnhub` only if you subscribe.
 
 ## Development
 
@@ -41,7 +66,14 @@ SQLite at `backend/data/supamarkt.db` (override with `DB_PATH` in `.env`).
 uv sync --group dev
 uv run pytest
 uv run ruff check src tests
-uv run ruff format src tests
 ```
 
-Run from the `backend/` directory.
+## Settings
+
+| Variable | Default |
+|----------|---------|
+| `FINNHUB_API_KEY` | *(required for collection)* |
+| `INTRADAY_INTERVAL` | `5m` |
+| `COLLECT_LOOKBACK_DAYS` | `5` |
+| `COLLECT_SYMBOL_DELAY_SECONDS` | `1` (rate-limit friendly) |
+| `DB_PATH` | `backend/data/supamarkt.db` |

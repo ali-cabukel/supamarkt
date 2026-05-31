@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from supamarkt.api.routers import instruments, signals
 from supamarkt.auth.deps import auth_backend, fastapi_users
 from supamarkt.auth.models import User  # noqa: F401 — register user table
 from supamarkt.auth.schemas import UserCreate, UserRead, UserUpdate
@@ -28,7 +29,10 @@ def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
         title="supamarkt API",
-        description="Supamarkt backend services.",
+        description=(
+            "Global intraday market data and trading signals (US, UK, EU). "
+            f"{settings.data_disclaimer}"
+        ),
         version="0.1.0",
         lifespan=lifespan,
     )
@@ -56,6 +60,8 @@ def create_app() -> FastAPI:
         prefix="/users",
         tags=["users"],
     )
+    app.include_router(instruments.router)
+    app.include_router(signals.router)
 
     @app.get("/health", tags=["health"])
     async def health() -> dict[str, str]:
