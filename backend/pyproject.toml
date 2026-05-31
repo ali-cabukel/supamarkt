@@ -1,0 +1,57 @@
+[project]
+name = "supamarkt"
+version = "0.1.0"
+description = "Supamarkt backend API and data services"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "click>=8.4.1",
+    "fastapi>=0.136.3",
+    "fastapi-users[sqlalchemy]>=15.0.5",
+    "greenlet>=3.5.1",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.1",
+    "python-multipart>=0.0.29",
+    "rich>=15.0.0",
+    "sqlalchemy>=2.0.50",
+    "uvicorn[standard]>=0.48.0",
+]
+
+[project.scripts]
+supamarkt = "supamarkt.cli:main"
+supamarkt-api = "supamarkt.api.main:run"
+
+[build-system]
+requires = ["uv_build>=0.8.23,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.15.15",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["supamarkt"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
