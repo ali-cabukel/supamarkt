@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from supamarkt.console import info, warn
+from supamarkt.console import info
 from supamarkt.db.engine import get_engine
 from supamarkt.db.models import Base
 from supamarkt.settings import get_settings
@@ -20,13 +20,13 @@ class Database:
 
     async def init(self) -> Path:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        if self.path.exists():
-            warn(f"Database already exists: {self.path}")
-            return self.path
-
+        existed = self.path.exists()
         async with self._engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        info(f"Created database: [bold]{self.path}[/bold]")
+        if existed:
+            info(f"Database schema up to date: [bold]{self.path}[/bold]")
+        else:
+            info(f"Created database: [bold]{self.path}[/bold]")
         return self.path
 
     def ensure_exists(self) -> None:

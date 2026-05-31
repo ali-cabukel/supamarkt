@@ -40,6 +40,25 @@ class Settings(BaseSettings):
     api_host: str = Field(default="127.0.0.1", validation_alias="API_HOST")
     api_port: int = Field(default=8000, validation_alias="API_PORT")
     api_reload: bool = Field(default=False, validation_alias="API_RELOAD")
+    finnhub_api_key: SecretStr = Field(default=SecretStr(""), validation_alias="FINNHUB_API_KEY")
+    data_provider_primary: str = Field(
+        default="yfinance",
+        validation_alias="DATA_PROVIDER_PRIMARY",
+        description="Primary OHLCV source: yfinance (free intraday) or finnhub (paid candles).",
+    )
+    intraday_interval: str = Field(default="5m", validation_alias="INTRADAY_INTERVAL")
+    collect_lookback_days: int = Field(default=5, validation_alias="COLLECT_LOOKBACK_DAYS")
+    collect_symbol_delay_seconds: float = Field(
+        default=1.0,
+        validation_alias="COLLECT_SYMBOL_DELAY_SECONDS",
+    )
+    data_disclaimer: str = Field(
+        default=(
+            "Research tool only — not investment advice. "
+            "Free-tier data may be delayed or incomplete."
+        ),
+        validation_alias="DATA_DISCLAIMER",
+    )
 
     @field_validator("db_path", mode="before")
     @classmethod
