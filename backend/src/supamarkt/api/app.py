@@ -8,19 +8,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from supamarkt.api.routers import instruments, signals
+from supamarkt.api.static_web import mount_static_web
 from supamarkt.auth.deps import auth_backend, fastapi_users
 from supamarkt.auth.models import User  # noqa: F401 — register user table
 from supamarkt.auth.schemas import UserCreate, UserRead, UserUpdate
 from supamarkt.db.engine import dispose_engine, get_engine
-from supamarkt.db.models import Base
+from supamarkt.db.init_db import init_schema
 from supamarkt.settings import get_settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    engine = get_engine()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await init_schema(get_engine())
     yield
     await dispose_engine()
 
@@ -47,24 +46,37 @@ def create_app() -> FastAPI:
 
     app.include_router(
         fastapi_users.get_auth_router(auth_backend),
-        prefix="/auth/jwt",
+        prefix="/api/auth/jwt",
         tags=["auth"],
     )
     app.include_router(
         fastapi_users.get_register_router(UserRead, UserCreate),
-        prefix="/auth",
+        prefix="/api/auth",
         tags=["auth"],
     )
     app.include_router(
         fastapi_users.get_users_router(UserRead, UserUpdate),
-        prefix="/users",
+        prefix="/api/users",
         tags=["users"],
     )
-    app.include_router(instruments.router)
-    app.include_router(signals.router)
+    app.include_router(instruments.router, prefix="/api")
+    app.include_router(signals.router, prefix="/api")
 
     @app.get("/health", tags=["health"])
-    async def health() -> dict[str, str]:
-        return {"status": "ok"}
+    async def health() -> dict[str, str | bool]:
+        settings = get_settings()
+        return {
+            "status": "ok",
+            "database": "postgres" if not settings.is_sqlite else "sqlite",
+            "database_schema": settings.database_schema,
+            "llm_provider": settings.llm_provider,
+            "llm_active": settings.resolved_llm_provider(),
+            "openai_configured": settings.has_openai_api_key(),
+            "openai_model": settings.openai_model,
+            "lmstudio_base_url": settings.lmstudio_base_url,
+            "ollama_base_url": settings.ollama_base_url,
+        }
+
+    mount_static_web(app, settings.static_dir_path)
 
     return app

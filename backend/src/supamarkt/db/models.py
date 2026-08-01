@@ -14,9 +14,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+from supamarkt.db.schema import metadata
+
 
 class Base(DeclarativeBase):
-    pass
+    metadata = metadata
 
 
 class Instrument(Base):
