@@ -39,11 +39,15 @@ uv run supamarkt-api
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/instruments` | List/search instruments (`?region=US`) |
-| GET | `/instruments/{id}/bars` | 5m OHLCV history |
-| GET | `/signals` | Latest signals (`?watchlist=default&strategy=ema_trend_5m`) |
+| GET | `/api/instruments` | List/search instruments (`?region=US`) |
+| GET | `/api/instruments/{id}/bars` | 5m OHLCV history |
+| GET | `/api/signals` | Latest signals (`?watchlist=default&strategy=ema_trend_5m`) |
 
-All market routes require JWT (`/auth/register`, `/auth/jwt/login`).
+All market routes require JWT (`/api/auth/register`, `/api/auth/jwt/login`).
+
+## Database
+
+SQLite by default, or Postgres / Supabase via `DATABASE_URL` and `DATABASE_SCHEMA=supamarkt`. See root [README.md](../README.md) for Docker and Cloud Run.
 
 ## Default watchlist
 

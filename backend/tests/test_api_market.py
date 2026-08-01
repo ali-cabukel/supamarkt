@@ -13,7 +13,7 @@ from supamarkt.auth.models import User
 
 
 @pytest.fixture
-def app():
+def app(isolated_test_db):
     return create_app()
 
 
@@ -33,7 +33,7 @@ def active_user() -> User:
 async def test_instruments_requires_auth(app):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.get("/instruments")
+        response = await client.get("/api/instruments")
     assert response.status_code == 401
 
 
@@ -41,7 +41,7 @@ async def test_instruments_requires_auth(app):
 async def test_signals_requires_auth(app):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.get("/signals")
+        response = await client.get("/api/signals")
     assert response.status_code == 401
 
 
@@ -55,7 +55,7 @@ async def test_signals_list_with_auth(app, active_user):
     try:
         async with app.router.lifespan_context(app):
             async with AsyncClient(transport=transport, base_url="http://test") as client:
-                response = await client.get("/signals?watchlist=default")
+                response = await client.get("/api/signals?watchlist=default")
     finally:
         app.dependency_overrides.clear()
 
