@@ -10,7 +10,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
-    func,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -102,7 +102,7 @@ class Signal(Base):
     bar_ts: Mapped[str] = mapped_column(String, nullable=False)
     reasons: Mapped[str] = mapped_column(Text, nullable=False)
     computed_at: Mapped[str] = mapped_column(
-        String, nullable=False, server_default=func.datetime("now")
+        String, nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )
 
     instrument: Mapped[Instrument] = relationship(back_populates="signals")
