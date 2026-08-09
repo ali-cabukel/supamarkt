@@ -44,52 +44,82 @@ function InstrumentsContent() {
   }, [region, query]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    const t = setTimeout(() => void load(), query ? 200 : 0);
+    return () => clearTimeout(t);
+  }, [load, query]);
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+    <main className="bg-market-soft mx-auto w-full max-w-6xl flex-1 px-4 py-8">
       <h1 className="text-2xl font-semibold tracking-tight">Instruments</h1>
-      <p className="mt-1 text-sm text-zinc-500">Tracked symbols across US, UK, and EU exchanges.</p>
+      <p className="mt-1 text-sm text-muted">Tracked symbols across US, UK, and EU exchanges.</p>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <input
           type="search"
           placeholder="Search symbol or name…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-w-[200px] flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          className="field flex-1"
+          aria-label="Search instruments"
         />
-        <select
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        >
-          {REGIONS.map((r) => (
-            <option key={r || "all"} value={r}>
-              {r || "All regions"}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap gap-2">
+          {REGIONS.map((r) => {
+            const active = region === r;
+            return (
+              <button
+                key={r || "all"}
+                type="button"
+                onClick={() => setRegion(r)}
+                className={`chip text-sm ${active ? "chip-active" : ""}`}
+              >
+                {r || "All"}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {loading && <p className="mt-8 text-zinc-500">Loading…</p>}
-      {error && <p className="mt-8 text-sm text-red-600">{error}</p>}
+      {loading && (
+        <div className="mt-8 space-y-2" aria-busy>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="h-14 animate-pulse rounded-lg bg-surface-2"
+              style={{ opacity: 1 - i * 0.1 }}
+            />
+          ))}
+        </div>
+      )}
 
-      {!loading && !error && (
-        <ul className="mt-6 divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+      {error && (
+        <div className="mt-8 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-danger">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && items.length === 0 && (
+        <div className="mt-10 rounded-xl border border-dashed border-border bg-surface/40 px-6 py-12 text-center">
+          <p className="font-medium">No instruments found</p>
+          <p className="mt-1 text-sm text-muted">Try another search or region filter.</p>
+        </div>
+      )}
+
+      {!loading && !error && items.length > 0 && (
+        <ul className="mt-6 divide-y divide-border overflow-hidden rounded-xl border border-border">
           {items.map((item) => (
             <li key={item.id}>
               <Link
                 href={`/instruments/${item.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                className="flex items-center justify-between gap-4 px-4 py-3.5 transition-colors hover:bg-accent-soft/50"
               >
-                <div>
-                  <span className="font-medium">{item.symbol}</span>
-                  <span className="ml-2 text-zinc-500">{item.mic}</span>
-                  <p className="text-sm text-zinc-500">{item.name}</p>
+                <div className="min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-semibold tracking-tight">{item.symbol}</span>
+                    <span className="font-mono text-xs text-muted">{item.mic}</span>
+                  </div>
+                  <p className="truncate text-sm text-muted">{item.name}</p>
                 </div>
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-800">
+                <span className="shrink-0 rounded-md bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-muted">
                   {item.region}
                 </span>
               </Link>

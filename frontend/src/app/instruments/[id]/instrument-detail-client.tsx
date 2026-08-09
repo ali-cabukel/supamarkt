@@ -52,48 +52,73 @@ function InstrumentDetailContent() {
   }, [load]);
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-      <Link href="/instruments" className="text-sm text-emerald-700 hover:underline dark:text-emerald-400">
+    <main className="bg-market-soft mx-auto w-full max-w-3xl flex-1 px-4 py-8">
+      <Link
+        href="/instruments"
+        className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+      >
         ← Instruments
       </Link>
 
-      {loading && <p className="mt-8 text-zinc-500">Loading chart…</p>}
-      {error && <p className="mt-8 text-sm text-red-600">{error}</p>}
+      {loading && (
+        <div className="mt-8 space-y-3" aria-busy>
+          <div className="h-8 w-40 animate-pulse rounded bg-surface-2" />
+          <div className="h-40 animate-pulse rounded-xl bg-surface-2" />
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-8 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-danger">
+          {error}
+        </div>
+      )}
 
       {data && (
         <>
-          <h1 className="mt-4 text-2xl font-semibold">
+          <h1 className="mt-5 text-3xl font-semibold tracking-tight">
             {data.symbol}
-            <span className="ml-2 text-base font-normal text-zinc-500">{data.mic}</span>
+            <span className="ml-2 font-mono text-base font-normal text-muted">{data.mic}</span>
           </h1>
-          <p className="text-sm text-zinc-500">{data.interval} bars</p>
-          <div className="mt-8 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+          <p className="mt-1 text-sm text-muted">{data.interval} bars</p>
+
+          <div className="mt-8 rounded-xl border border-border bg-surface/60 p-5">
             <PriceSparkline bars={data.items} />
           </div>
+
           {data.items.length > 0 && (
-            <div className="mt-8 overflow-x-auto text-xs font-mono">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="text-left text-zinc-500">
-                    <th className="py-1 pr-4">Time</th>
-                    <th className="py-1 pr-4">O</th>
-                    <th className="py-1 pr-4">H</th>
-                    <th className="py-1 pr-4">L</th>
-                    <th className="py-1 pr-4">C</th>
-                    <th className="py-1">Vol</th>
+            <div className="mt-8 overflow-x-auto rounded-xl border border-border">
+              <table className="min-w-full font-mono text-xs">
+                <thead className="border-b border-border bg-surface-2/80 text-left text-muted">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Time</th>
+                    <th className="px-3 py-2 font-medium">O</th>
+                    <th className="px-3 py-2 font-medium">H</th>
+                    <th className="px-3 py-2 font-medium">L</th>
+                    <th className="px-3 py-2 font-medium">C</th>
+                    <th className="px-3 py-2 font-medium">Vol</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...data.items].reverse().slice(0, 15).map((bar) => (
-                    <tr key={bar.bar_ts} className="border-t border-zinc-100 dark:border-zinc-800">
-                      <td className="py-1 pr-4">{bar.bar_ts}</td>
-                      <td className="py-1 pr-4">{bar.open.toFixed(2)}</td>
-                      <td className="py-1 pr-4">{bar.high.toFixed(2)}</td>
-                      <td className="py-1 pr-4">{bar.low.toFixed(2)}</td>
-                      <td className="py-1 pr-4">{bar.close.toFixed(2)}</td>
-                      <td className="py-1">{bar.volume.toFixed(0)}</td>
-                    </tr>
-                  ))}
+                  {[...data.items]
+                    .reverse()
+                    .slice(0, 15)
+                    .map((bar) => (
+                      <tr
+                        key={bar.bar_ts}
+                        className="border-t border-border/70 hover:bg-accent-soft/30"
+                      >
+                        <td className="px-3 py-1.5 text-muted">{bar.bar_ts}</td>
+                        <td className="px-3 py-1.5 tabular-nums">{bar.open.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 tabular-nums">{bar.high.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 tabular-nums">{bar.low.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 tabular-nums text-accent">
+                          {bar.close.toFixed(2)}
+                        </td>
+                        <td className="px-3 py-1.5 tabular-nums text-muted">
+                          {bar.volume.toFixed(0)}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
