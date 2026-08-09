@@ -1,13 +1,15 @@
 const STYLES: Record<string, string> = {
-  BUY: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300",
-  SELL: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-300",
-  HOLD: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+  BUY: "bg-accent/20 text-accent",
+  SELL: "bg-red-500/15 text-danger",
+  HOLD: "bg-zinc-500/15 text-muted",
 };
 
 export function SignalBadge({ action }: { action: string }) {
   const style = STYLES[action] ?? STYLES.HOLD;
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${style}`}>
+    <span
+      className={`inline-flex min-w-[3.5rem] items-center justify-center rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold tracking-wide ${style}`}
+    >
       {action}
     </span>
   );

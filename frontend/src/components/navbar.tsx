@@ -1,51 +1,61 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
+import { LogoMark } from "@/components/logo-mark";
 import { useAuth } from "@/contexts/auth-context";
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const pathname = usePathname();
+  const active = pathname === href || pathname.startsWith(`${href}/`);
+
+  return (
+    <Link
+      href={href}
+      className={`rounded-md px-2.5 py-1.5 transition-colors ${
+        active
+          ? "bg-accent text-accent-on font-semibold shadow-[0_0_12px_rgba(34,197,94,0.35)]"
+          : "text-muted hover:text-foreground"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href={user ? "/signals" : "/"} className="text-lg font-semibold tracking-tight">
-          supamarkt
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
+        <Link
+          href={user ? "/signals" : "/"}
+          className="group flex items-center gap-2.5"
+        >
+          <LogoMark className="h-7 w-7 transition-transform group-hover:scale-105" />
+          <span className="text-base font-semibold tracking-tight">supamarkt</span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
+
+        <nav className="flex items-center gap-1 text-sm sm:gap-2">
           {user ? (
             <>
-              <Link
-                href="/signals"
-                className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Signals
-              </Link>
-              <Link
-                href="/instruments"
-                className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Instruments
-              </Link>
-              <span className="hidden text-zinc-500 sm:inline">{user.email}</span>
-              <button
-                type="button"
-                onClick={logout}
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-              >
+              <NavLink href="/signals">Signals</NavLink>
+              <NavLink href="/instruments">Instruments</NavLink>
+              <span className="mx-1 hidden max-w-[160px] truncate text-xs text-muted md:inline">
+                {user.email}
+              </span>
+              <button type="button" onClick={logout} className="btn-ghost !px-3 !py-1.5 text-xs">
                 Log out
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400">
+              <Link href="/login" className="px-2.5 py-1.5 text-muted hover:text-foreground">
                 Log in
               </Link>
-              <Link
-                href="/register"
-                className="rounded-md bg-emerald-700 px-3 py-1.5 text-white hover:bg-emerald-600"
-              >
+              <Link href="/register" className="btn-primary !px-3 !py-1.5 text-xs">
                 Register
               </Link>
             </>

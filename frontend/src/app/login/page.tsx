@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
+import { LogoMark } from "@/components/logo-mark";
 import { useAuth } from "@/contexts/auth-context";
 import { ApiError } from "@/lib/types";
 
@@ -34,52 +35,65 @@ export default function LoginPage() {
 
   if (loading || user) {
     return (
-      <div className="flex flex-1 items-center justify-center py-24 text-zinc-500">Loading…</div>
+      <div className="flex flex-1 items-center justify-center py-24 text-muted">Loading…</div>
     );
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
-      <p className="mt-2 text-sm text-zinc-500">View signals and instruments from your backend.</p>
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-        <label className="block text-sm">
-          <span className="mb-1 block text-zinc-600 dark:text-zinc-400">Email</span>
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-zinc-600 dark:text-zinc-400">Password</span>
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
-          />
-        </label>
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-md bg-emerald-700 py-2.5 text-sm font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+    <main className="bg-market-soft flex flex-1 flex-col justify-center px-4 py-12">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-8 flex items-center gap-2.5">
+          <LogoMark className="h-8 w-8" />
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+            <p className="text-sm text-muted">Access signals and instruments.</p>
+          </div>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-xl border border-border bg-surface/80 p-6 backdrop-blur"
         >
-          {submitting ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
-      <p className="mt-6 text-center text-sm text-zinc-500">
-        No account?{" "}
-        <Link href="/register" className="text-emerald-700 underline dark:text-emerald-400">
-          Register
-        </Link>
-      </p>
+          <label className="block text-sm">
+            <span className="mb-1.5 block text-muted">Email</span>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="field"
+              placeholder="you@example.com"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block text-muted">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="field"
+            />
+          </label>
+          {error && (
+            <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+              {error}
+            </p>
+          )}
+          <button type="submit" disabled={submitting} className="btn-primary w-full">
+            {submitting ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-muted">
+          No account?{" "}
+          <Link href="/register" className="font-medium text-accent hover:underline">
+            Register
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }
