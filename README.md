@@ -53,7 +53,7 @@ Push to `main` triggers `.github/workflows/deploy.yml` (bundled root `Dockerfile
 
 Before first deploy:
 
-1. Add `kurtc3b3/supamarkt` to GitHub WIF provider
+1. Add `ali-cabukel/supamarkt` to GitHub WIF provider
 2. Create GCP secrets: `SECRET` (maps to `SECRET_KEY`), `OPENAI_API_KEY`, `DATABASE_URL`
 3. Deploy uses `DATABASE_SCHEMA=supamarkt`, `LLM_PROVIDER=openai`, `STATIC_DIR=/app/static`
 
